@@ -1,10 +1,15 @@
 import React, { Component, PropTypes } from 'react'
 import classnames from 'classnames'
 import TodoTextInput from './TodoTextInput'
+import { PureRenderMixin } from 'pure-render-mixin'
+import { createSelector } from 'reselect'
+import { connect } from 'react-redux'
 
 class TodoItem extends Component {
   constructor(props, context) {
     super(props, context)
+    // MWE: all props are immutable objects. So let's apply pure render mxixin for a big performance gain!
+    this.shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this)
     this.state = {
       editing: false
     }
@@ -24,7 +29,12 @@ class TodoItem extends Component {
   }
 
   render() {
-    const { todo, completeTodo, deleteTodo } = this.props
+    /**
+     * MWE: "other" is a reference (id of) to an arbitrarily other todo item.
+     * In a real app this denotes a reference to something like a user, tags
+     * or something else that lives in some other part of the state tree
+     */
+    const { todo, completeTodo, deleteTodo, other } = this.props
 
     let element
     if (this.state.editing) {
@@ -41,7 +51,7 @@ class TodoItem extends Component {
                  checked={todo.completed}
                  onChange={() => completeTodo(todo.id)} />
           <label onDoubleClick={this.handleDoubleClick.bind(this)}>
-            {todo.text}
+            {todo.text} {other && other.completed ? "Yes!" : " . "}
           </label>
           <button className="destroy"
                   onClick={() => deleteTodo(todo.id)} />
@@ -67,4 +77,20 @@ TodoItem.propTypes = {
   completeTodo: PropTypes.func.isRequired
 }
 
-export default TodoItem
+const relatedTodoSelector = createSelector(
+  [
+    state => state.todos,
+    (_, ownProps) => ownProps.todo.other
+  ],
+  (todos, otherId) => ({ other: otherId === null ? null : todos[otherId] })
+)
+
+const ConnectedTodoItem = connect(
+  relatedTodoSelector
+)(TodoItem)
+
+// MWE: export TodoItem for the plain scenario,
+// export ConnectedTodoItem for the scenario with 1 selector
+// export default TodoItem
+
+export default ConnectedTodoItem

@@ -1,12 +1,24 @@
 import { ADD_TODO, DELETE_TODO, EDIT_TODO, COMPLETE_TODO, COMPLETE_ALL, CLEAR_COMPLETED } from '../constants/ActionTypes'
 
+// MWE: For testing:
+const STORE_SIZE = 10000;
+
 const initialState = [
-  {
-    text: 'Use Redux',
-    completed: false,
-    id: 0
-  }
 ]
+
+for (var i = 0; i < STORE_SIZE; i++) {
+  initialState.push({
+    text: 'Item' + i,
+    completed: false,
+    id: i,
+    // array index as reference to some other object in the state tree.
+    // in the real world todos would probably be a map and 'initialState[i - 1].id' would be used..
+    // but let's not make this test unecessary inefficient by filtering for the correct todo
+    other: i > 0
+      ? i - 1 
+      : null
+  });
+}
 
 export default function todos(state = initialState, action) {
   switch (action.type) {
@@ -16,7 +28,7 @@ export default function todos(state = initialState, action) {
           id: state.reduce((maxId, todo) => Math.max(todo.id, maxId), -1) + 1,
           completed: false,
           text: action.text
-        }, 
+        },
         ...state
       ]
 
