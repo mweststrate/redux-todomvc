@@ -77,7 +77,7 @@ TodoItem.propTypes = {
   completeTodo: PropTypes.func.isRequired
 }
 
-const relatedTodoSelector = createSelector(
+const relatedTodoSelectorFactory = () => createSelector(
   [
     state => state.todos,
     (_, ownProps) => ownProps.todo.other
@@ -85,8 +85,10 @@ const relatedTodoSelector = createSelector(
   (todos, otherId) => ({ other: otherId === null ? null : todos[otherId] })
 )
 
+const makeMapStateToProps = () => relatedTodoSelectorFactory();
+
 const ConnectedTodoItem = connect(
-  relatedTodoSelector
+  makeMapStateToProps
 )(TodoItem)
 
 // MWE: export TodoItem for the plain scenario,
