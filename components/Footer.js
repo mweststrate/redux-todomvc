@@ -1,20 +1,14 @@
 import React, { PropTypes, Component } from 'react'
 import { connect } from 'react-redux'
-import shallowCompare from 'react-addons-shallow-compare'
 import classnames from 'classnames'
 import FilterLink from './FilterLink'
+import { getCompletedCount, getListedCount } from '../reducers'
 import { clearCompleted } from '../actions'
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
 
 class Footer extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
-
-  renderTodoCount() {
-    const { activeCount } = this.props
+  renderTodoCount(activeCount) {
     const itemWord = activeCount === 1 ? 'item' : 'items'
-
     return (
       <span className="todo-count">
         <strong>{activeCount || 'No'}</strong> {itemWord} left
@@ -35,9 +29,14 @@ class Footer extends Component {
   }
 
   render() {
+    const { listedCount, completedCount } = this.props
+    const activeCount = listedCount - completedCount
+    if (!listedCount) {
+      return null
+    }
     return (
       <footer className="footer">
-        {this.renderTodoCount()}
+        {this.renderTodoCount(activeCount)}
         <ul className="filters">
           {[ SHOW_ALL, SHOW_ACTIVE, SHOW_COMPLETED ].map(filter =>
             <li key={filter}>
@@ -52,13 +51,16 @@ class Footer extends Component {
 }
 
 Footer.propTypes = {
+  filter: PropTypes.string.isRequired,
+  listedCount: PropTypes.number.isRequired,
   completedCount: PropTypes.number.isRequired,
-  activeCount: PropTypes.number.isRequired,
 }
 
 function mapStateToProps(state) {
   return {
-    filter: state.filter
+    filter: state.filter,
+    listedCount: getListedCount(state),
+    completedCount: getCompletedCount(state),
   }
 }
 

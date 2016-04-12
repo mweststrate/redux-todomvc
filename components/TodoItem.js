@@ -1,15 +1,10 @@
 import React, { Component, PropTypes } from 'react'
 import classnames from 'classnames'
-import shallowCompare from 'react-addons-shallow-compare'
 import { connect } from 'react-redux'
 import TodoTextInput from './TodoTextInput'
 import { completeTodo, editTodo, deleteTodo } from '../actions'
 
 class TodoItem extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
-    return shallowCompare(this, nextProps, nextState);
-  }
-
   constructor(props, context) {
     super(props, context)
     this.state = {
