@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import classnames from 'classnames'
 import { setFilter } from '../actions'
@@ -10,34 +10,23 @@ const FILTER_TITLES = {
   [SHOW_COMPLETED]: 'Completed'
 }
 
-class FilterLink extends Component {
-  constructor(props) {
-    super(props)
-    this.handleClick = this.handleClick.bind(this)
-  }
+const FilterLink = ({ filter, selected, onClick }) => (
+  <a className={classnames({ selected })}
+     style={{ cursor: 'pointer' }}
+     onClick={onClick}>
+    {FILTER_TITLES[filter]}
+  </a>
+)
 
-  handleClick() {
-    this.props.setFilter(this.props.filter)
-  }
+const mapStateToProps = (state, ownProps) => ({
+  selected: state.filter === ownProps.filter
+})
 
-  render() {
-    const { filter } = this.props
-    const title = FILTER_TITLES[filter]
-    return (
-      <a className={classnames({
-        selected: this.props.isSelected
-      })}
-         style={{ cursor: 'pointer' }}
-         onClick={this.handleClick}>
-        {title}
-      </a>
-    )
-  }
-}
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  onClick: () => dispatch(setFilter(ownProps.filter))
+})
 
 export default connect(
-  (state, ownProps) => ({ 
-    isSelected: state.filter === ownProps.filter
-  }),
-  { setFilter }
+  mapStateToProps,
+  mapDispatchToProps
 )(FilterLink)
