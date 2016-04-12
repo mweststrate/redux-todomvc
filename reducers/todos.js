@@ -19,8 +19,9 @@ function todo(state, action) {
   switch (action.type) {
     case ADD_TODO:
       return {
+        text: action.text,
         id: action.id,
-        text: action.text
+        relatedId: null
       }
     case EDIT_TODO:
       return {
