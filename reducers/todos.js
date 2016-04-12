@@ -41,44 +41,42 @@ function byId(state = initialById, action) {
   }
 }
 
-function listedIds(state = initialListedIds, action) {
+function listedIds(state = initialListedIds, action, {isCompletedById}) {
   switch (action.type) {
     case ADD_TODO:
       return [action.id, ...state]
     case DELETE_TODO:
       return state.filter(todoId => todoId !== action.id)
+    case CLEAR_COMPLETED:
+      return state.filter(id => !isCompletedById[id])
     default:
       return state
   }
 }
 
-function isCompletedById(state = {}, action, listedIdsState) {
+function isCompletedById(state = {}, action, {listedIds}) {
   switch (action.type) {
     case COMPLETE_TODO:
       return Object.assign({}, state, {
         [action.id]: !state[action.id]
       })
     case COMPLETE_ALL:
-      const areAllCompleted = listedIdsState.every(id => state[id])
+      const areAllCompleted = listedIds.every(id => state[id])
       if (areAllCompleted) {
         return {}
-      } else {
-        let stateWithAllCompleted = {}
-        listedIdsState.forEach(id => stateWithAllCompleted[id] = true)
-        return stateWithAllCompleted
       }
-    case CLEAR_COMPLETED:
-      return {}
+      let nextState = {}
+      listedIds.forEach(id => nextState[id] = true)
+      return nextState
     default:
        return state
   }
 }
 
 export default function todos(state = {}, action) {
-  const listedIdsState = listedIds(state.listedIds, action)
   return {
-    listedIds: listedIdsState,
     byId: byId(state.byId, action),
-    isCompletedById: isCompletedById(state.isCompletedById, action, listedIdsState)
+    listedIds: listedIds(state.listedIds, action, state),
+    isCompletedById: isCompletedById(state.isCompletedById, action, state)
   }
 }
