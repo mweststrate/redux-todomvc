@@ -46,7 +46,7 @@ class TodoItem extends Component {
     } else {
       element = (
         <div className="view">
-          <input 
+          <input
             className="toggle"
             type="checkbox"
             checked={isCompleted}
@@ -80,16 +80,21 @@ TodoItem.propTypes = {
   completeTodo: PropTypes.func.isRequired
 }
 
-const mapStateToProps = ({ todos }, { id }) => {
-  const todo = todos.byId[id]
-  return {
-    todo,
-    isCompleted: todos.isCompletedById[id],
-    isRelatedTodoCompleted: todos.isCompletedById[todo.relatedId]
+const makeMapStateToProps = (initialState, initialProps) => {
+  const { id } = initialProps
+  const mapStateToProps = (state) => {
+    const { todos } = state
+    const todo = todos.byId[id]
+    return {
+      todo,
+      isCompleted: todos.isCompletedById[id],
+      isRelatedTodoCompleted: todos.isCompletedById[todo.relatedId]
+    }
   }
+  return mapStateToProps
 }
 
 export default connect(
-  mapStateToProps,
+  makeMapStateToProps,
   { completeTodo, editTodo, deleteTodo }
 )(TodoItem)
