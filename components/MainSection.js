@@ -1,83 +1,93 @@
 import React, { Component, PropTypes } from 'react'
+import shallowCompare from 'react-addons-shallow-compare'
+import { connect } from 'react-redux'
+import { createSelector } from 'reselect'
 import TodoItem from './TodoItem'
 import Footer from './Footer'
+import { completeAll, clearCompleted } from '../actions'
 import { SHOW_ALL, SHOW_COMPLETED, SHOW_ACTIVE } from '../constants/TodoFilters'
 
-const TODO_FILTERS = {
-  [SHOW_ALL]: () => true,
-  [SHOW_ACTIVE]: todo => !todo.completed,
-  [SHOW_COMPLETED]: todo => todo.completed
-}
-
 class MainSection extends Component {
-  constructor(props, context) {
-    super(props, context)
-    this.state = { filter: SHOW_ALL }
+  shouldComponentUpdate(nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
   }
 
-  handleClearCompleted() {
-    this.props.actions.clearCompleted()
-  }
-
-  handleShow(filter) {
-    this.setState({ filter })
-  }
-
-  renderToggleAll(completedCount) {
-    const { todos, actions } = this.props
-    if (todos.length > 0) {
+  renderToggleAll() {
+    const { completedCount, totalCount, completeAll } = this.props
+    if (totalCount > 0) {
       return (
         <input className="toggle-all"
                type="checkbox"
-               checked={completedCount === todos.length}
-               onChange={actions.completeAll} />
+               checked={completedCount === totalCount}
+               onChange={completeAll} />
       )
     }
   }
 
-  renderFooter(completedCount) {
-    const { todos } = this.props
-    const { filter } = this.state
-    const activeCount = todos.length - completedCount
-
-    if (todos.length) {
+  renderFooter() {
+    const { totalCount, completedCount } = this.props
+    const activeCount = totalCount - completedCount
+    if (totalCount) {
       return (
         <Footer completedCount={completedCount}
-                activeCount={activeCount}
-                filter={filter}
-                onClearCompleted={this.handleClearCompleted.bind(this)}
-                onShow={this.handleShow.bind(this)} />
+                activeCount={activeCount} />
       )
     }
   }
 
   render() {
-    const { todos, actions } = this.props
-    const { filter } = this.state
-
-    const filteredTodos = todos.filter(TODO_FILTERS[filter])
-    const completedCount = todos.reduce((count, todo) =>
-      todo.completed ? count + 1 : count,
-      0
-    )
-
+    const { visibleIds } = this.props
     return (
       <section className="main">
-        {this.renderToggleAll(completedCount)}
+        {this.renderToggleAll()}
         <ul className="todo-list">
-          {filteredTodos.map(todo =>
-            <TodoItem key={todo.id} todo={todo} {...actions} />
+          {visibleIds.map(id =>
+            <TodoItem key={id} id={id} />
           )}
         </ul>
-        {this.renderFooter(completedCount)}
+        {this.renderFooter()}
       </section>
     )
   }
 }
 
-MainSection.propTypes = {
-  todos: PropTypes.array.isRequired,
-  actions: PropTypes.object.isRequired
+const getVisibleTodoIds = createSelector(
+  [
+    state => state.todos.listedIds,
+    state => state.filter,
+    state => state.todos.isCompletedById
+  ],
+  (listedIds, filter, isCompletedById) => {
+    switch (filter) {
+      case SHOW_ALL:
+        return listedIds
+      case SHOW_COMPLETED:
+        return listedIds.filter(id => isCompletedById[id])
+      case SHOW_ACTIVE:
+        return listedIds.filter(id => !isCompletedById[id])
+    }
+  }
+)
+
+const getCompletedCount = createSelector(
+  [
+    state => state.todos.listedIds,
+    state => state.todos.isCompletedById
+  ],
+  (listedIds, isCompletedById) => {
+    return listedIds.filter(id => isCompletedById[id]).length
+  }
+)
+
+function mapStateToProps(state) {
+  return {
+    visibleIds: getVisibleTodoIds(state),
+    completedCount: getCompletedCount(state),
+    totalCount: state.todos.listedIds.length,
+  }
 }
 
-export default MainSection
+export default connect(
+  mapStateToProps,
+  { completeAll, clearCompleted }
+)(MainSection)

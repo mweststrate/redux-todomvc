@@ -1,7 +1,8 @@
 import * as types from '../constants/ActionTypes'
 
+let nextId = 0;
 export function addTodo(text) {
-  return { type: types.ADD_TODO, text }
+  return { type: types.ADD_TODO, text, id: (nextId++).toString() }
 }
 
 export function deleteTodo(id) {
@@ -22,4 +23,8 @@ export function completeAll() {
 
 export function clearCompleted() {
   return { type: types.CLEAR_COMPLETED }
+}
+
+export function setFilter(filter) {
+  return { type: types.SET_FILTER, filter }
 }

@@ -1,5 +1,7 @@
 import React, { PropTypes, Component } from 'react'
+import { connect } from 'react-redux'
 import TodoTextInput from './TodoTextInput'
+import { addTodo } from '../actions'
 
 class Header extends Component {
   handleSave(text) {
@@ -24,4 +26,4 @@ Header.propTypes = {
   addTodo: PropTypes.func.isRequired
 }
 
-export default Header
+export default connect(null, { addTodo })(Header)
