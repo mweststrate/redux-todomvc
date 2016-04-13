@@ -12,17 +12,17 @@ export default combineReducers({
 export const getVisibleTodoIds = createSelector(
   [
     state => state.todos.listedIds,
-    state => state.todos.isCompletedById,
+    state => state.todos.byId,
     state => state.filter,
   ],
-  (listedIds, isCompletedById, filter) => {
+  (listedIds, byId, filter) => {
     switch (filter) {
       case SHOW_ALL:
         return listedIds
       case SHOW_COMPLETED:
-        return listedIds.filter(id => isCompletedById[id])
+        return listedIds.filter(id => byId[id].isCompleted)
       case SHOW_ACTIVE:
-        return listedIds.filter(id => !isCompletedById[id])
+        return listedIds.filter(id => !byId[id].isCompleted)
     }
   }
 )
@@ -35,8 +35,8 @@ export const getListedCount = createSelector(
 export const getCompletedCount = createSelector(
   [
     state => state.todos.listedIds,
-    state => state.todos.isCompletedById
+    state => state.todos.byId
   ],
-  (listedIds, isCompletedById) =>
-    listedIds.filter(id => isCompletedById[id]).length
+  (listedIds, byId) =>
+    listedIds.filter(id => byId[id].isCompleted).length
 )

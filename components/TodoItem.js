@@ -28,8 +28,7 @@ class TodoItem extends Component {
   render() {
     const {
       todo,
-      isCompleted,
-      isRelatedTodoCompleted,
+      relatedTodo,
       completeTodo,
       deleteTodo,
     } = this.props
@@ -49,10 +48,10 @@ class TodoItem extends Component {
           <input
             className="toggle"
             type="checkbox"
-            checked={isCompleted}
+            checked={todo.isCompleted}
             onChange={() => completeTodo(todo.id)} />
           <label onDoubleClick={this.handleDoubleClick.bind(this)}>
-            {todo.text} {isRelatedTodoCompleted ? "(+)" : "(-)"}
+            {todo.text} {relatedTodo && relatedTodo.isCompleted ? "(+)" : "(-)"}
           </label>
           <button
             className="destroy"
@@ -63,7 +62,7 @@ class TodoItem extends Component {
 
     return (
       <li className={classnames({
-        completed: isCompleted,
+        completed: todo.isCompleted,
         editing: this.state.editing
       })}>
         {element}
@@ -85,10 +84,10 @@ const makeMapStateToProps = (initialState, initialProps) => {
   const mapStateToProps = (state) => {
     const { todos } = state
     const todo = todos.byId[id]
+    const relatedTodo = todo.relatedId && todos.byId[todo.relatedId]
     return {
       todo,
-      isCompleted: todos.isCompletedById[id],
-      isRelatedTodoCompleted: todos.isCompletedById[todo.relatedId]
+      relatedTodo
     }
   }
   return mapStateToProps
