@@ -9,7 +9,7 @@ export default class TodoTextInput extends Component {
     }
   }
 
-  handleSubmit(e) {
+  handleSubmit = (e) => {
     const text = e.target.value.trim()
     if (e.which === 13) {
       this.props.onSave(text)
@@ -19,11 +19,11 @@ export default class TodoTextInput extends Component {
     }
   }
 
-  handleChange(e) {
+  handleChange = (e) => {
     this.setState({ text: e.target.value })
   }
 
-  handleBlur(e) {
+  handleBlur = (e) => {
     if (!this.props.newTodo) {
       this.props.onSave(e.target.value)
     }
@@ -40,9 +40,9 @@ export default class TodoTextInput extends Component {
         placeholder={this.props.placeholder}
         autoFocus="true"
         value={this.state.text}
-        onBlur={this.handleBlur.bind(this)}
-        onChange={this.handleChange.bind(this)}
-        onKeyDown={this.handleSubmit.bind(this)} />
+        onBlur={this.handleBlur}
+        onChange={this.handleChange}
+        onKeyDown={this.handleSubmit} />
     )
   }
 }
