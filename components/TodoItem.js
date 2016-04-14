@@ -12,7 +12,7 @@ class TodoItem extends Component {
     }
   }
 
-  handleDoubleClick() {
+  handleDoubleClick = () => {
     this.setState({ editing: true })
   }
 
@@ -50,7 +50,7 @@ class TodoItem extends Component {
             type="checkbox"
             checked={todo.isCompleted}
             onChange={() => completeTodo(todo.id)} />
-          <label onDoubleClick={this.handleDoubleClick.bind(this)}>
+          <label onDoubleClick={this.handleDoubleClick}>
             {todo.text} {relatedTodo && relatedTodo.isCompleted ? "(+)" : "(-)"}
           </label>
           <button
